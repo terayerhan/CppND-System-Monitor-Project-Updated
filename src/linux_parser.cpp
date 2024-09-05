@@ -134,7 +134,23 @@ long LinuxParser::Jiffies() {
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() { 
+  std::ifstream stat_file(kProcDirectory + kStatFilename);
+    if (stat_file.is_open()) {
+        std::string line;
+        std::getline(stat_file, line);  // Read the first line (CPU line)
+        
+        std::istringstream iss(line);
+        std::string cpu_label;
+        long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+        iss >> cpu_label >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
+
+        // Active jiffies exclude idle and iowait times
+        long active_jiffies = user + nice + system + irq + softirq + steal;
+        return active_jiffies;
+    }
+    return 0; 
+}
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
