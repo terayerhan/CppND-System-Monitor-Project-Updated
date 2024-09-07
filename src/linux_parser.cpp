@@ -72,30 +72,44 @@ vector<int> LinuxParser::Pids() {
 // TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
   std::ifstream meminfo(kProcDirectory + kMeminfoFilename);
-  std::string line;
-  std::string key;
-  unsigned long long total_memory = 0;
-  unsigned long long free_memory = 0;
+    if (!meminfo.is_open()) {
+        return -1.0; // Unable to open file
+    }
 
-  if (meminfo.is_open()) {
-      while (std::getline(meminfo, line)) {
-      std::istringstream iss(line);
-      iss >> key;
-        if (key == "MemTotal:") {
-            iss >> total_memory;
-        } else if (key == "MemFree:") {
-            iss >> free_memory;
+    std::string line;
+    unsigned long long total_memory = 0;
+    unsigned long long free_memory = 0;
+    unsigned long long buffers = 0;
+    unsigned long long cached = 0;
+    unsigned long long sReclaimable = 0;
+
+    while (std::getline(meminfo, line)) {
+        if (line.compare(0, 9, "MemTotal:") == 0) {
+            total_memory = std::stoull(line.substr(9));
+        } else if (line.compare(0, 8, "MemFree:") == 0) {
+            free_memory = std::stoull(line.substr(8));
+        } else if (line.compare(0, 8, "Buffers:") == 0) {
+            buffers = std::stoull(line.substr(8));
+        } else if (line.compare(0, 7, "Cached:") == 0) {
+            cached = std::stoull(line.substr(7));
+        } else if (line.compare(0, 13, "SReclaimable:") == 0) {
+            sReclaimable = std::stoull(line.substr(13));
         }
-      }
-  }
 
-  if (total_memory == 0) {
-      return -1.0f; // Avoid division by zero
-  }
+        if (total_memory && free_memory && buffers && cached && sReclaimable) {
+            break;  // We have all the information we need
+        }
+    }
 
-  // Calculate memory utilization percentage
-  float used_memory = static_cast<float>(total_memory - free_memory);
-  return (used_memory / total_memory); 
+    if (total_memory == 0) {
+        return -1.0; // Avoid division by zero
+    }
+
+    // Calculate used memory, considering buffers and cache
+    unsigned long long used_memory = total_memory - free_memory - buffers - cached - sReclaimable;
+
+    // Calculate memory utilization as a percentage
+    return static_cast<float>(used_memory) / total_memory; 
 }
 
 // TODO: Read and return the system uptime
