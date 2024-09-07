@@ -19,7 +19,18 @@ using std::vector;
 Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() {
+    vector<int> pids = LinuxParser::Pids();  // Extract the pids from /proc/
+    processes_.clear();                      // Clear the vector of processes attribute.
+    processes_.reserve(pids.size());         // Reserve space for the new set of Processes
+    
+    // Use emplace_back to efficiently add Process objects to processes_
+    for (const int& pid : pids) {
+        processes_.emplace_back(pid);        // Create Process object with pid in place.
+    }
+
+    return processes_; 
+}
 
 // TODO: Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }
