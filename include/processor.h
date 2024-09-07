@@ -7,6 +7,8 @@ class Processor {
 
   // TODO: Declare any necessary private members
  private:
+  long previousTotalJiffies_ = {};
+  long previousActiveJiffies_ = {};
 };
 
 #endif
