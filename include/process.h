@@ -20,8 +20,12 @@ class Process {
   // TODO: Declare any necessary private members
  private:
   int pid_ = {};
-  long previousTotalJiffies_ = {}; // Previous Total CPU Jiffies
-  long previousActiveJiffies_ = {}; // Previous Active Process Jiffies
+  bool valid_;
+  float cpuUtilization_;
+  unsigned long long totalTime_;
+  unsigned long long lastTotalTime_;
+  unsigned long long lastTotalSystemTime_;
+  unsigned long long startTime_;
 };
 
 #endif
