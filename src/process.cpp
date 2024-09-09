@@ -89,21 +89,7 @@ bool Process::hasChanged() {
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { 
-    long currentTotalJiffies = LinuxParser::Jiffies();
-    long currentActiveJiffies = LinuxParser::ActiveJiffies(pid_);
-
-    long totalDiff = currentTotalJiffies - previousTotalJiffies_;
-    long activeDiff = currentActiveJiffies - previousActiveJiffies_;
-
-    if(totalDiff == 0){ return 0.0;}
-
-    // Cache the current values in the Processor object.
-    previousTotalJiffies_ = currentTotalJiffies;
-    previousActiveJiffies_ = currentActiveJiffies;
-
-    return static_cast<float>(activeDiff) / totalDiff;  
-}
+float Process::CpuUtilization() { return cpuUtilization_; }
 
 // TODO: Return the command that generated this process
 string Process::Command() { return string(); }
