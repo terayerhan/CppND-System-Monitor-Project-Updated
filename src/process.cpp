@@ -11,6 +11,10 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), lastTotalSystemTime_(0), cpuUtilization_(0.0) {
+        updateInfo();
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
