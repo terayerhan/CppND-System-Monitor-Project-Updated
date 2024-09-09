@@ -8,9 +8,7 @@ It contains relevant attributes as shown below
 */
 class Process {
  public:
-  Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), lastTotalSystemTime_(0), cpuUtilization_(0.0) {
-        updateInfo();
-  }
+  Process(int pid);
   int Pid();                               // TODO: See src/process.cpp
   std::string User();                      // TODO: See src/process.cpp
   std::string Command();                   // TODO: See src/process.cpp
