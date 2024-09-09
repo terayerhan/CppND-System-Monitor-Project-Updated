@@ -38,7 +38,7 @@ vector<Process>& System::Processes() {
     }
 
     // Add new processes
-    for (const auto& entry : std::filesystem::directory_iterator("/proc/")) {
+    for (const auto& entry : std::filesystem::directory_iterator(LinuxParser::kProcDirectory)) {
         if (entry.is_directory() && std::isdigit(entry.path().filename().string()[0])) {
             int pid = std::stoi(entry.path().filename().string());
 
