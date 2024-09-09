@@ -10,6 +10,7 @@ class Process {
  public:
   Process(int pid);
   bool isValid() const;
+  bool hasChanged();
   float getCpuUtilization(unsigned long long totalSystemTime, unsigned long long currentTime);
   int Pid();                               // TODO: See src/process.cpp
   std::string User();                      // TODO: See src/process.cpp
@@ -30,7 +31,7 @@ class Process {
   unsigned long long startTime_;
 
   void updateInfo();
-  bool hasChanged();
+  
 };
 
 #endif
