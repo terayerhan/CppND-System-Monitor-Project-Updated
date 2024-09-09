@@ -65,6 +65,26 @@ void Process::updateInfo() {
     }
 }
 
+bool Process::hasChanged() {
+    std::ifstream file(LinuxParser::kProcDirectory + std::to_string(pid_) + 
+                       LinuxParser::kStatFilename);
+    if (!file.is_open()) {
+        return true;
+    }
+
+    std::string line;
+    if (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string token;
+        for (int i = 0; i < 21; ++i) iss >> token;
+        unsigned long long currentStartTime;
+        if (iss >> currentStartTime) {
+            return currentStartTime != startTime_;
+        }
+    }
+    return true;
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
