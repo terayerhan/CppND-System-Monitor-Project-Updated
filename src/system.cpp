@@ -56,11 +56,8 @@ vector<Process>& System::Processes() {
         }
     }
 
-    // Sort processes by CPU utilization
-    std::stable_sort(processes_.begin(), processes_.end(),
-                        [](Process& a, Process& b) {
-                            return a.CpuUtilization() > b.CpuUtilization();
-                        });
+    // Sort processes by CPU utilization in descending order
+    std::sort(processes_.begin(), processes_.end(), std::greater<Process>());
 
     return processes_; 
 }
