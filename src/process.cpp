@@ -33,6 +33,38 @@ float Process::getCpuUtilization(unsigned long long totalSystemTime, unsigned lo
     return cpuUtilization_;
 }
 
+void Process::updateInfo() {
+    // Read /proc/[pid]/stat to get the latest CPU times and process info
+    std::ifstream file(LinuxParser::kProcDirectory + std::to_string(pid_) + 
+                       LinuxParser::kStatFilename);
+    if (!file.is_open()) {
+        valid_ = false;
+        return;
+    }
+
+    std::string line;
+    if (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string token;
+
+        // Skip fields until utime (14th field)
+        for (int i = 0; i < 13; ++i) iss >> token;
+
+        unsigned long long utime, stime;
+        if (iss >> utime >> stime) {
+            totalTime_ = utime + stime;
+        }
+
+        // Skip fields until starttime (22nd field)
+        for (int i = 0; i < 7; ++i) iss >> token;
+        if (iss >> startTime_) {
+            valid_ = true;
+        }
+    } else {
+        valid_ = false;
+    }
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
