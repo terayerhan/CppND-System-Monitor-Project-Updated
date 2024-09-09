@@ -19,6 +19,20 @@ bool Process::isValid() const {
         return valid_;
 }
 
+float Process::getCpuUtilization(unsigned long long totalSystemTime, unsigned long long currentTime) {
+    if (hasChanged()) {
+        updateInfo();
+    }
+    if (lastTotalSystemTime_ > 0) {
+        unsigned long long deltaTotalTime = totalTime_ - lastTotalTime_;
+        unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime_;
+        cpuUtilization_ = (deltaTotalTime * 100.0) / deltaSystemTime;
+    }
+    lastTotalTime_ = totalTime_;
+    lastTotalSystemTime_ = totalSystemTime;
+    return cpuUtilization_;
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
