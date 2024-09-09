@@ -15,6 +15,10 @@ Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), lastTota
         updateInfo();
 }
 
+bool Process::isValid() const {
+        return valid_;
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
