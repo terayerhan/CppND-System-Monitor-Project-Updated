@@ -9,6 +9,8 @@
 #include "system.h"
 
 #include "linux_parser.h"
+#include <chrono>
+#include <filesystem>
 
 using std::set;
 using std::size_t;
@@ -20,14 +22,45 @@ Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-    vector<int> pids = LinuxParser::Pids();  // Extract the pids from /proc/
-    processes_.clear();                      // Clear the vector of processes attribute.
-    processes_.reserve(pids.size());         // Reserve space for the new set of Processes
-    
-    // Use emplace_back to efficiently add Process objects to processes_
-    for (const int& pid : pids) {
-        processes_.emplace_back(pid);        // Create Process object with pid in place.
+    unsigned long long totalSystemTime = LinuxParser::Jiffies();
+
+    // Get the current time within updateProcesses
+    unsigned long long currentTime = std::chrono::steady_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+
+    // Only update the existing processes, removing invalid ones
+    for (auto it = processes_.begin(); it != processes_.end();) {
+        if (!it->isValid() || it->hasChanged()) {
+            it = processes_.erase(it);
+        } else {
+            it->getCpuUtilization(totalSystemTime, currentTime);
+            ++it;
+        }
     }
+
+    // Add new processes
+    for (const auto& entry : std::filesystem::directory_iterator("/proc/")) {
+        if (entry.is_directory() && std::isdigit(entry.path().filename().string()[0])) {
+            int pid = std::stoi(entry.path().filename().string());
+
+            // Check if the process is already tracked
+            auto it = std::find_if(processes_.begin(), processes_.end(),
+                                    [pid](Process& p) { return p.Pid() == pid; });
+
+            if (it == processes_.end()) { // Add new process if not already tracked
+                Process process(pid);
+                if (process.isValid()) {
+                    process.getCpuUtilization(totalSystemTime, currentTime);
+                    processes_.push_back(std::move(process));
+                }
+            }
+        }
+    }
+
+    // Sort processes by CPU utilization
+    std::stable_sort(processes_.begin(), processes_.end(),
+                        [](Process& a, Process& b) {
+                            return a.CpuUtilization() > b.CpuUtilization();
+                        });
 
     return processes_; 
 }
