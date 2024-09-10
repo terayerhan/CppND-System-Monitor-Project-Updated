@@ -89,7 +89,7 @@ bool Process::hasChanged() {
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return cpuUtilization_; }
+float Process::CpuUtilization() { return totalTime_ - lastTotalTime_; }
 
 // TODO: Return the command that generated this process
 string Process::Command() { return string(); }
@@ -106,5 +106,5 @@ long int Process::UpTime() { return 0; }
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator>(Process const& a) const { 
-    return cpuUtilization_ < a.cpuUtilization_; 
+    return cpuUtilization_ > a.cpuUtilization_; 
 }
