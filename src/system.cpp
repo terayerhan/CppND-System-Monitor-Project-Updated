@@ -29,7 +29,7 @@ vector<Process>& System::Processes() {
         if (!(it->isValid()) || it->hasChanged()) {
             it = processes_.erase(it);
         } else {
-            it->getCpuUtilization(totalSystemTime);
+            it->getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
             ++it;
         }
     }
@@ -46,12 +46,14 @@ vector<Process>& System::Processes() {
             if (it == processes_.end()) { // Add new process if not already tracked
                 Process process(pid);
                 if (process.isValid()) {
-                    process.getCpuUtilization(totalSystemTime);
+                    process.getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
                     processes_.push_back(std::move(process));
                 }
             }
         }
     }
+
+    lastTotalSystemTime_ = totalSystemTime;
 
     // Sort processes by CPU utilization in descending order
     std::sort(processes_.begin(), processes_.end(), std::greater<Process>());

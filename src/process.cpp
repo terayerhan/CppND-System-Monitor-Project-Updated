@@ -11,8 +11,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), lastTotalSystemTime_(0), 
-                cpuUtilization_(0.0) {
+Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), cpuUtilization_(0.0) {
         updateInfo();
 }
 
@@ -20,13 +19,13 @@ bool Process::isValid() const {
         return valid_;
 }
 
-float Process::getCpuUtilization(unsigned long long totalSystemTime) {
+float Process::getCpuUtilization(unsigned long long totalSystemTime, unsigned long long lastTotalSystemTime) {
     if (hasChanged()) {
         updateInfo();
     }
     else {
         updateInfo();
-        unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime_;
+        unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime;
 
         if (deltaSystemTime > 0) {
             unsigned long long deltaTotalTime = totalTime_ - lastTotalTime_;            
@@ -36,7 +35,6 @@ float Process::getCpuUtilization(unsigned long long totalSystemTime) {
     }
     
     lastTotalTime_ = totalTime_;
-    lastTotalSystemTime_ = totalSystemTime;
     return cpuUtilization_;
 }
 

@@ -21,6 +21,7 @@ class System {
   // TODO: Define any necessary private members
  private:
   Processor cpu_ = {};
+  unsigned long long lastTotalSystemTime_ = {};
   std::vector<Process> processes_ = {};
 };
 
