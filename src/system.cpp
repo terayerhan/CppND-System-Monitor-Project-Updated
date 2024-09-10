@@ -26,7 +26,7 @@ vector<Process>& System::Processes() {
 
     // Only update the existing processes, removing invalid ones
     for (auto it = processes_.begin(); it != processes_.end();) {
-        if (!it->isValid() || it->hasChanged()) {
+        if (!(it->isValid()) || it->hasChanged()) {
             it = processes_.erase(it);
         } else {
             it->getCpuUtilization(totalSystemTime);

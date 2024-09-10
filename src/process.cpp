@@ -23,11 +23,16 @@ float Process::getCpuUtilization(unsigned long long totalSystemTime) {
     if (hasChanged()) {
         updateInfo();
     }
-    if (lastTotalSystemTime_ > 0) {
-        unsigned long long deltaTotalTime = totalTime_ - lastTotalTime_;
-        unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime_;
-        cpuUtilization_ = (deltaTotalTime *1.0) / deltaSystemTime;
+    else {
+        updateInfo();
+        if (lastTotalSystemTime_ > 0) {
+            unsigned long long deltaTotalTime = totalTime_ - lastTotalTime_;
+            unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime_;
+            cpuUtilization_ = (deltaTotalTime *1.0) / deltaSystemTime;
+        }
+
     }
+    
     lastTotalTime_ = totalTime_;
     lastTotalSystemTime_ = totalSystemTime;
     return cpuUtilization_;
@@ -89,7 +94,7 @@ bool Process::hasChanged() {
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return totalTime_ - lastTotalTime_; }
+float Process::CpuUtilization() { return cpuUtilization_; }
 
 // TODO: Return the command that generated this process
 string Process::Command() { return string(); }
