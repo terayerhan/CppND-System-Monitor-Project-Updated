@@ -24,15 +24,12 @@ Processor& System::Cpu() { return cpu_; }
 vector<Process>& System::Processes() {
     unsigned long long totalSystemTime = LinuxParser::Jiffies();
 
-    // Get the current time within updateProcesses
-    unsigned long long currentTime = std::chrono::steady_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-
     // Only update the existing processes, removing invalid ones
     for (auto it = processes_.begin(); it != processes_.end();) {
         if (!it->isValid() || it->hasChanged()) {
             it = processes_.erase(it);
         } else {
-            it->getCpuUtilization(totalSystemTime, currentTime);
+            it->getCpuUtilization(totalSystemTime);
             ++it;
         }
     }
@@ -49,7 +46,7 @@ vector<Process>& System::Processes() {
             if (it == processes_.end()) { // Add new process if not already tracked
                 Process process(pid);
                 if (process.isValid()) {
-                    process.getCpuUtilization(totalSystemTime, currentTime);
+                    process.getCpuUtilization(totalSystemTime);
                     processes_.push_back(std::move(process));
                 }
             }

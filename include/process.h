@@ -11,7 +11,7 @@ class Process {
   Process(int pid);
   bool isValid() const;
   bool hasChanged();
-  float getCpuUtilization(unsigned long long totalSystemTime, unsigned long long currentTime);
+  float getCpuUtilization(unsigned long long totalSystemTime);
   int Pid();                               // TODO: See src/process.cpp
   std::string User();                      // TODO: See src/process.cpp
   std::string Command();                   // TODO: See src/process.cpp

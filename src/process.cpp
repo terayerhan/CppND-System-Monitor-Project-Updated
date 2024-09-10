@@ -19,7 +19,7 @@ bool Process::isValid() const {
         return valid_;
 }
 
-float Process::getCpuUtilization(unsigned long long totalSystemTime, unsigned long long currentTime) {
+float Process::getCpuUtilization(unsigned long long totalSystemTime) {
     if (hasChanged()) {
         updateInfo();
     }
