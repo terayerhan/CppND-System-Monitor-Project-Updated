@@ -6,6 +6,7 @@
 
 #include "process.h"
 #include "linux_parser.h"
+#include <algorithm>
 
 using std::string;
 using std::to_string;
@@ -97,7 +98,23 @@ int Process::Pid() { return pid_; }
 float Process::CpuUtilization() { return cpuUtilization_; }
 
 // TODO: Return the command that generated this process
-string Process::Command() { return string(); }
+string Process::Command() { 
+    std::ifstream cmdline_file(LinuxParser::kProcDirectory + std::to_string(pid_) +
+                                LinuxParser::kCmdlineFilename);
+    
+    if (!cmdline_file.is_open()) {
+        return "Error: Unable to open cmdline file";
+    }
+    
+    std::string command;
+    std::getline(cmdline_file, command, '\0');
+    
+    // Trim trailing spaces
+    command.erase(command.find_last_not_of(" \n\r\t") + 1);
+    
+    return command;  
+    
+}
 
 // TODO: Return this process's memory utilization
 string Process::Ram() { return string(); }

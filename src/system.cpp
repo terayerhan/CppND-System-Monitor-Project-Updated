@@ -22,41 +22,41 @@ Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-    unsigned long long totalSystemTime = LinuxParser::Jiffies();
+    // unsigned long long totalSystemTime = LinuxParser::Jiffies();
 
-    // Only update the existing processes, removing invalid ones
-    for (auto it = processes_.begin(); it != processes_.end();) {
-        if (!(it->isValid()) || it->hasChanged()) {
-            it = processes_.erase(it);
-        } else {
-            it->getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
-            ++it;
-        }
-    }
+    // // Only update the existing processes, removing invalid ones
+    // for (auto it = processes_.begin(); it != processes_.end();) {
+    //     if (!(it->isValid()) || it->hasChanged()) {
+    //         it = processes_.erase(it);
+    //     } else {
+    //         it->getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
+    //         ++it;
+    //     }
+    // }
 
-    // Add new processes
-    for (const auto& entry : std::filesystem::directory_iterator(LinuxParser::kProcDirectory)) {
-        if (entry.is_directory() && std::isdigit(entry.path().filename().string()[0])) {
-            int pid = std::stoi(entry.path().filename().string());
+    // // Add new processes
+    // for (const auto& entry : std::filesystem::directory_iterator(LinuxParser::kProcDirectory)) {
+    //     if (entry.is_directory() && std::isdigit(entry.path().filename().string()[0])) {
+    //         int pid = std::stoi(entry.path().filename().string());
 
-            // Check if the process is already tracked
-            auto it = std::find_if(processes_.begin(), processes_.end(),
-                                    [pid](Process& p) { return p.Pid() == pid; });
+    //         // Check if the process is already tracked
+    //         auto it = std::find_if(processes_.begin(), processes_.end(),
+    //                                 [pid](Process& p) { return p.Pid() == pid; });
 
-            if (it == processes_.end()) { // Add new process if not already tracked
-                Process process(pid);
-                if (process.isValid()) {
-                    process.getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
-                    processes_.push_back(std::move(process));
-                }
-            }
-        }
-    }
+    //         if (it == processes_.end()) { // Add new process if not already tracked
+    //             Process process(pid);
+    //             if (process.isValid()) {
+    //                 process.getCpuUtilization(totalSystemTime, lastTotalSystemTime_);
+    //                 processes_.push_back(std::move(process));
+    //             }
+    //         }
+    //     }
+    // }
 
-    lastTotalSystemTime_ = totalSystemTime;
+    // lastTotalSystemTime_ = totalSystemTime;
 
-    // Sort processes by CPU utilization in descending order
-    std::sort(processes_.begin(), processes_.end(), std::greater<Process>());
+    // // Sort processes by CPU utilization in descending order
+    // std::sort(processes_.begin(), processes_.end(), std::greater<Process>());
 
     return processes_; 
 }
