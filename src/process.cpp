@@ -26,7 +26,7 @@ float Process::getCpuUtilization(unsigned long long totalSystemTime, unsigned lo
     if (lastTotalSystemTime_ > 0) {
         unsigned long long deltaTotalTime = totalTime_ - lastTotalTime_;
         unsigned long long deltaSystemTime = totalSystemTime - lastTotalSystemTime_;
-        cpuUtilization_ = deltaTotalTime / deltaSystemTime;
+        cpuUtilization_ = (deltaTotalTime *1.0) / deltaSystemTime;
     }
     lastTotalTime_ = totalTime_;
     lastTotalSystemTime_ = totalSystemTime;
