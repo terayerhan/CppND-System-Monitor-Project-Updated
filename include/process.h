@@ -26,8 +26,7 @@ class Process {
   bool valid_;
   float cpuUtilization_;
   unsigned long long totalTime_;
-  unsigned long long lastTotalTime_;
-  //unsigned long long lastTotalSystemTime_;
+  unsigned long long lastTotalTime_;  
   unsigned long long startTime_;
 
   void updateInfo();
