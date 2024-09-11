@@ -314,25 +314,28 @@ string LinuxParser::Ram(int pid) {
 string LinuxParser::Uid(int pid) { 
   std::ifstream status_file(kProcDirectory + std::to_string(pid) + kStatusFilename);
     if (!status_file.is_open()) {
-        return "";  // Return empty string if the file cannot be opened
+        return "";  // Return empty string if the file can't be opened
     }
 
     std::string line;
     const std::string target_key = "Uid:";
-    const std::string key_prefix = target_key + " ";
 
+    // Read and parse the status file to find the UID
     while (std::getline(status_file, line)) {
-        if (line.compare(0, key_prefix.size(), key_prefix) == 0) {
-            std::size_t pos = key_prefix.size();
-            std::size_t end_pos = line.find_first_of(" \t", pos);
-            if (end_pos != std::string::npos) {
-                return line.substr(pos, end_pos - pos);  // Return the UID as a string
+        if (line.compare(0, target_key.size(), target_key) == 0) {
+            std::istringstream iss(line);
+            std::string key, uid_str;
+            iss >> key >> uid_str;
+            if (!uid_str.empty()) {
+                return uid_str;  // Return UID as string
             }
-            break;  // Exit loop if UID is found
+            break;  // Exit loop if UID is empty or not found
         }
     }
 
-    return "";  // Return empty string if UID is not found 
+    // Return an empty string if UID is not found
+    return "";
+
 }
 
 // TODO: Read and return the user associated with a process
