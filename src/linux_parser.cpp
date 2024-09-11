@@ -310,4 +310,34 @@ string LinuxParser::User(int pid) {
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+  std::ifstream stat_file(kProcDirectory + std::to_string(pid) + kStatFilename);
+    if (!stat_file.is_open()) {
+        return 0;  // Return 0 if the file cannot be opened
+    }
+
+    std::string line;
+    std::getline(stat_file, line);
+    std::istringstream linestream(line);
+
+    std::string ignore;
+    long starttime = 0;
+
+    // Skip the first 21 fields
+    for (int i = 0; i < 21; ++i) {
+        linestream >> ignore;
+    }
+
+    linestream >> starttime;  // 22nd field is the process start time in clock ticks
+
+    long clock_ticks_per_second = sysconf(_SC_CLK_TCK);
+    long process_start_time_in_seconds = starttime / clock_ticks_per_second;
+
+    // Get the system uptime
+    long system_uptime = UpTime();
+
+    // Time since the process started = system uptime - process start time
+    long time_since_process_started = system_uptime - process_start_time_in_seconds;
+
+    return time_since_process_started; 
+}
