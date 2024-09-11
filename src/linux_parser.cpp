@@ -260,7 +260,26 @@ int LinuxParser::RunningProcesses() {
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid) { 
+  std::ifstream cmdline_file(kProcDirectory + std::to_string(pid) + kCmdlineFilename);
+    if (!cmdline_file.is_open()) {
+        return "";  // Return an empty string if the file cannot be opened
+    }
+
+    std::string command;
+    std::getline(cmdline_file, command, '\0');  // Read the command line
+
+    // Replace null characters with spaces (as arguments are separated by '\0')
+    std::replace(command.begin(), command.end(), '\0', ' ');
+
+    // Check if trimming is necessary by inspecting the last character
+    if (!command.empty() && isspace(command.back())) {
+        // Trim trailing whitespace
+        command.erase(command.find_last_not_of(" \n\r\t") + 1);
+    }
+
+    return command; 
+}
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
