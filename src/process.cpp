@@ -170,27 +170,8 @@ float Process::CpuUtilization() {
 }
 
 // TODO: Return the command that generated this process
-string Process::Command() { 
-    std::ifstream cmdline_file(LinuxParser::kProcDirectory + std::to_string(pid_) + 
-                               LinuxParser::kCmdlineFilename);
-    
-    if (!cmdline_file.is_open()) {
-        return "";  // Return an empty string to indicate failure to open file
-    }
-
-    std::string command;
-    std::getline(cmdline_file, command, '\0');  // Read up to the first null char
-
-    // Since /proc/[pid]/cmdline may have null-separated arguments, replace nulls with spaces
-    std::replace(command.begin(), command.end(), '\0', ' ');
-
-    // Trim any trailing whitespace (if necessary)
-    if (!command.empty()) {
-        command.erase(command.find_last_not_of(" \n\r\t") + 1);
-    }
-
-    return command; 
-    
+string Process::Command() {     
+    return LinuxParser::Command(pid_);    
 }
 
 // TODO: Return this process's memory utilization
