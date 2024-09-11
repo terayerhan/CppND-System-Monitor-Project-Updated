@@ -12,6 +12,7 @@ class Process {
   bool isValid() const;
   bool hasChanged();
   void MemoryUtilization();
+  float GetMemoryUtilization() const { return memoryUtilization_; }  // Getter for memory utilization
   float getCpuUtilization(unsigned long long totalSystemTime, unsigned long long lastTotalSystemTime );
   int Pid();                               // TODO: See src/process.cpp
   std::string User();                      // TODO: See src/process.cpp

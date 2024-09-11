@@ -32,6 +32,11 @@ vector<Process>& System::Processes() {
         processes_.emplace_back(pid);        // Create Process object with pid in place.
     }
 
+    // Sort processes by memory utilization in descending order
+    std::sort(processes_.begin(), processes_.end(), [](const Process& a, const Process& b) {
+        return a.GetMemoryUtilization() > b.GetMemoryUtilization();
+    });
+
 
 
     // unsigned long long totalSystemTime = LinuxParser::Jiffies();
