@@ -91,6 +91,29 @@ bool Process::hasChanged() {
     return true;
 }
 
+float Process::MemoryUtilization() {
+    std::ifstream file(LinuxParser::kProcDirectory + std::to_string(pid_) + 
+                        LinuxParser::kStatusFilename);
+    if (!file.is_open()) {
+        return 0.0;  // If file can't be opened, return 0 memory usage
+    }
+
+    std::string line;
+    const std::string key = "VmRSS:";
+    while (std::getline(file, line)) {
+        if (line.compare(0, key.size(), key) == 0) {  // Check if the line starts with "VmRSS:"
+            // Find the position of the memory value and extract it directly
+            std::size_t pos = line.find_first_of("0123456789");
+            if (pos != std::string::npos) {
+                float memory_kb = std::stof(line.substr(pos));
+                memoryUtilization_ = memory_kb / 1024.0;  // Convert to MB
+            }
+            break;  // Exit the loop once "VmRSS:" is found
+        }
+    }
+    return memoryUtilization_;
+}
+
 // TODO: Return this process's ID
 int Process::Pid() { return pid_; }
 
