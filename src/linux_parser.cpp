@@ -6,6 +6,7 @@
 #include "linux_parser.h"
 
 #include <filesystem>
+#include <pwd.h>
 
 using std::stof;
 using std::string;
@@ -293,7 +294,19 @@ string LinuxParser::Uid(int pid) {
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) { 
+  // Retrieve UID
+    std::string uid_str = Uid(pid);
+    if (uid_str.empty()) {
+        return "unknown";  // Return "unknown" if UID could not be retrieved
+    }
+
+    // Convert UID to username
+    uid_t uid = static_cast<uid_t>(std::stoi(uid_str));
+    struct passwd* pw = getpwuid(uid);
+    return pw ? pw->pw_name : "unknown";  // Return "unknown" if the username cannot be found
+
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
