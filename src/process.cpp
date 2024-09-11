@@ -14,6 +14,7 @@ using std::vector;
 
 Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), cpuUtilization_(0.0) {
         updateInfo();
+        MemoryUtilization();
 }
 
 bool Process::isValid() const {
@@ -91,11 +92,12 @@ bool Process::hasChanged() {
     return true;
 }
 
-float Process::MemoryUtilization() {
+void Process::MemoryUtilization() {
     std::ifstream file(LinuxParser::kProcDirectory + std::to_string(pid_) + 
                         LinuxParser::kStatusFilename);
     if (!file.is_open()) {
-        return 0.0;  // If file can't be opened, return 0 memory usage
+        memoryUtilization_ = 0;
+        return ;  // If file can't be opened, return 0 memory usage
     }
 
     std::string line;
@@ -105,13 +107,12 @@ float Process::MemoryUtilization() {
             // Find the position of the memory value and extract it directly
             std::size_t pos = line.find_first_of("0123456789");
             if (pos != std::string::npos) {
-                float memory_kb = std::stof(line.substr(pos));
+                long memory_kb = std::stof(line.substr(pos));
                 memoryUtilization_ = memory_kb / 1024.0;  // Convert to MB
             }
             break;  // Exit the loop once "VmRSS:" is found
         }
-    }
-    return memoryUtilization_;
+    }    
 }
 
 // TODO: Return this process's ID
@@ -145,7 +146,9 @@ string Process::Command() {
 }
 
 // TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+string Process::Ram() { 
+    return std::to_string(memoryUtilization_); 
+}
 
 // TODO: Return the user (name) that generated this process
 string Process::User() { return string(); }
