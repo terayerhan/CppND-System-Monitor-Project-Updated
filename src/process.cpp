@@ -14,8 +14,8 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-Process::Process(int pid) : pid_(pid), valid_(true), lastTotalTime_(0), cpuUtilization_(0.0) {
-        updateInfo();
+Process::Process(int pid) : pid_(pid), valid_(true), cpuUtilization_(0.0), lastTotalTime_(0)  {
+        //updateInfo();
         MemoryUtilization();
 }
 
@@ -122,51 +122,69 @@ int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() { 
-    unsigned long long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
-    unsigned long long user_old, nice_old, system_old, idle_old, iowait_old, irq_old, softirq_old, steal_old, guest_old, guest_nice_old;
-    unsigned long long process_time[2], process_time_old[2];
+    float cpuUtilization = 0;
+    long initialProcessJiffies = LinuxParser::ActiveJiffies(pid_);
+    long initialSystemJiffies = LinuxParser::Jiffies();
 
-    auto read_cpu_stats = [&]() {
-        std::ifstream stat_file("/proc/stat");
-        std::string cpu_label;
-        stat_file >> cpu_label
-                  >> user >> nice >> system >> idle
-                  >> iowait >> irq >> softirq >> steal
-                  >> guest >> guest_nice;
-    };
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    auto read_process_stats = [&]() {
-        std::ifstream stat_file("/proc/" + std::to_string(pid_) + "/stat");
-        std::string unused;
-        for (int i = 0; i < 13; ++i) {
-            stat_file >> unused;
-        }
-        stat_file >> process_time[0] >> process_time[1];
-    };
+    long finalProcessJiffies = LinuxParser::ActiveJiffies(pid_);
+    long finalSystemJiffies = LinuxParser::Jiffies();
 
-    read_cpu_stats();
-    read_process_stats();
+    long deltaProcessJiffies = finalProcessJiffies - initialProcessJiffies;
+    long deltaSystemJiffies = finalSystemJiffies - initialSystemJiffies;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    if (deltaSystemJiffies > 0) {
+        cpuUtilization = deltaProcessJiffies / deltaSystemJiffies;
+    }
 
-    user_old = user; nice_old = nice; system_old = system; idle_old = idle;
-    iowait_old = iowait; irq_old = irq; softirq_old = softirq; steal_old = steal;
-    guest_old = guest; guest_nice_old = guest_nice;
-    process_time_old[0] = process_time[0];
-    process_time_old[1] = process_time[1];
+    return cpuUtilization;
 
-    read_cpu_stats();
-    read_process_stats();
+    // unsigned long long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+    // unsigned long long user_old, nice_old, system_old, idle_old, iowait_old, irq_old, softirq_old, steal_old, guest_old, guest_nice_old;
+    // unsigned long long process_time[2], process_time_old[2];
 
-    unsigned long long total_time = user + nice + system + idle + iowait + irq + softirq + steal;
-    unsigned long long total_time_old = user_old + nice_old + system_old + idle_old + 
-                                        iowait_old + irq_old + softirq_old + steal_old;
+    // auto read_cpu_stats = [&]() {
+    //     std::ifstream stat_file("/proc/stat");
+    //     std::string cpu_label;
+    //     stat_file >> cpu_label
+    //               >> user >> nice >> system >> idle
+    //               >> iowait >> irq >> softirq >> steal
+    //               >> guest >> guest_nice;
+    // };
 
-    unsigned long long total_delta = total_time - total_time_old;
-    unsigned long long process_delta = (process_time[0] + process_time[1]) - 
-                                       (process_time_old[0] + process_time_old[1]);
+    // auto read_process_stats = [&]() {
+    //     std::ifstream stat_file("/proc/" + std::to_string(pid_) + "/stat");
+    //     std::string unused;
+    //     for (int i = 0; i < 13; ++i) {
+    //         stat_file >> unused;
+    //     }
+    //     stat_file >> process_time[0] >> process_time[1];
+    // };
 
-    return static_cast<float>(process_delta) / total_delta;
+    // read_cpu_stats();
+    // read_process_stats();
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    // user_old = user; nice_old = nice; system_old = system; idle_old = idle;
+    // iowait_old = iowait; irq_old = irq; softirq_old = softirq; steal_old = steal;
+    // guest_old = guest; guest_nice_old = guest_nice;
+    // process_time_old[0] = process_time[0];
+    // process_time_old[1] = process_time[1];
+
+    // read_cpu_stats();
+    // read_process_stats();
+
+    // unsigned long long total_time = user + nice + system + idle + iowait + irq + softirq + steal;
+    // unsigned long long total_time_old = user_old + nice_old + system_old + idle_old + 
+    //                                     iowait_old + irq_old + softirq_old + steal_old;
+
+    // unsigned long long total_delta = total_time - total_time_old;
+    // unsigned long long process_delta = (process_time[0] + process_time[1]) - 
+    //                                    (process_time_old[0] + process_time_old[1]);
+
+    // return static_cast<float>(process_delta) / total_delta;
 }
 
 // TODO: Return the command that generated this process
